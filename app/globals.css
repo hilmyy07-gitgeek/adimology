@@ -1074,3 +1074,105 @@ h3 {
   text-align: right;
   white-space: nowrap;
 }
+
+/* ===== Token Status Indicator ===== */
+.token-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+.token-status-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.token-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.token-dot.good { background-color: var(--accent-success); box-shadow: 0 0 10px var(--accent-success); }
+.token-dot.warning { background-color: var(--accent-warning); box-shadow: 0 0 10px var(--accent-warning); }
+.token-dot.error { background-color: #ff4d4d; box-shadow: 0 0 10px #ff4d4d; }
+
+.status-valid { color: var(--accent-success); }
+.status-warning { color: var(--accent-warning); }
+.status-error { color: #ff4d4d; }
+
+.token-popup {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 300px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.token-popup-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.token-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.token-info-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.token-action-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.token-action-btn:hover {
+  background: var(--accent-primary);
+  color: white;
+  border-color: transparent;
+}

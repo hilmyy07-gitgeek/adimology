@@ -1,8 +1,16 @@
 import type { MarketDetectorResponse, OrderbookResponse, BrokerData, WatchlistResponse, BrokerSummaryData, EmitenInfoResponse, KeyStatsResponse, KeyStatsData, KeyStatsItem } from './types';
-import { getSessionValue } from './supabase';
+import { getSessionValue, updateTokenLastUsed, invalidateToken } from './supabase';
 
 const STOCKBIT_BASE_URL = 'https://exodus.stockbit.com';
 const STOCKBIT_AUTH_URL = 'https://stockbit.com';
+
+// Custom error for token expiry - allows UI to detect and show refresh prompt
+export class TokenExpiredError extends Error {
+  constructor(message: string = 'Token has expired or is invalid. Please login to Stockbit again.') {
+    super(message);
+    this.name = 'TokenExpiredError';
+  }
+}
 
 // Cache token to reduce database calls
 let cachedToken: string | null = null;
@@ -61,6 +69,25 @@ async function getHeaders(): Promise<HeadersInit> {
 }
 
 /**
+ * Handle API response - check for 401 and update token status
+ */
+async function handleApiResponse(response: Response, apiName: string): Promise<void> {
+  if (response.status === 401) {
+    // Token is invalid - mark it and clear cache
+    await invalidateToken();
+    cachedToken = null;
+    throw new TokenExpiredError(`${apiName}: Token expired or invalid (401)`);
+  }
+  
+  if (!response.ok) {
+    throw new Error(`${apiName} error: ${response.status} ${response.statusText}`);
+  }
+  
+  // Token is valid - update last used timestamp (fire and forget)
+  updateTokenLastUsed().catch(() => {});
+}
+
+/**
  * Fetch Market Detector data (broker information)
  */
 export async function fetchMarketDetector(
@@ -81,9 +108,7 @@ export async function fetchMarketDetector(
     headers: await getHeaders(),
   });
 
-  if (!response.ok) {
-    throw new Error(`Market Detector API error: ${response.status} ${response.statusText}`);
-  }
+  await handleApiResponse(response, 'Market Detector API');
 
   return response.json();
 }
@@ -99,9 +124,7 @@ export async function fetchOrderbook(emiten: string): Promise<OrderbookResponse>
     headers: await getHeaders(),
   });
 
-  if (!response.ok) {
-    throw new Error(`Orderbook API error: ${response.status} ${response.statusText}`);
-  }
+  await handleApiResponse(response, 'Orderbook API');
 
   return response.json();
 }
@@ -137,9 +160,7 @@ export async function fetchEmitenInfo(emiten: string): Promise<EmitenInfoRespons
     headers: await getHeaders(),
   });
 
-  if (!response.ok) {
-    throw new Error(`Emiten Info API error: ${response.status} ${response.statusText}`);
-  }
+  await handleApiResponse(response, 'Emiten Info API');
 
   const data: EmitenInfoResponse = await response.json();
   
@@ -172,9 +193,7 @@ export async function fetchSectors(): Promise<string[]> {
     headers: await getHeaders(),
   });
 
-  if (!response.ok) {
-    throw new Error(`Sectors API error: ${response.status} ${response.statusText}`);
-  }
+  await handleApiResponse(response, 'Sectors API');
 
   const data = await response.json();
   const sectors: string[] = (data.data || []).map((item: { name: string }) => item.name).filter(Boolean);
@@ -200,9 +219,7 @@ export async function fetchWatchlist(): Promise<WatchlistResponse> {
     headers: await getHeaders(),
   });
 
-  if (!metaResponse.ok) {
-    throw new Error(`Watchlist Meta API error: ${metaResponse.status} ${metaResponse.statusText}`);
-  }
+  await handleApiResponse(metaResponse, 'Watchlist Meta API');
 
   const metaJson = await metaResponse.json();
 
@@ -221,9 +238,7 @@ export async function fetchWatchlist(): Promise<WatchlistResponse> {
     headers: await getHeaders(),
   });
 
-  if (!detailResponse.ok) {
-    throw new Error(`Watchlist Detail API error: ${detailResponse.status} ${detailResponse.statusText}`);
-  }
+  await handleApiResponse(detailResponse, 'Watchlist Detail API');
 
   const detailJson = await detailResponse.json();
 
@@ -331,9 +346,7 @@ export async function fetchKeyStats(emiten: string): Promise<KeyStatsData> {
     headers: await getHeaders(),
   });
 
-  if (!response.ok) {
-    throw new Error(`KeyStats API error: ${response.status} ${response.statusText}`);
-  }
+  await handleApiResponse(response, 'KeyStats API');
 
   const json: KeyStatsResponse = await response.json();
   return parseKeyStatsResponse(json);
