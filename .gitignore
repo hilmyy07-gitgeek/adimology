@@ -13,10 +13,10 @@
 # testing
 /coverage
 
-# next.js
+# netlify
+.netlify/
 /.next/
 /out/
-.netlify/.next
 
 # production
 /build
