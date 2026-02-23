@@ -1,7 +1,7 @@
 console.log("Stockbit Token Syncer: Background script starting...");
 
 // Configuration
-// const APP_API_URL = "http://saham07.netlify.app/api/update-token"; // Dev
+// const APP_API_URL = "https://saham07.netlify.app/api/update-token"; // Dev
 const APP_API_URL = "https://saham07.netlify.app/api/update-token"; // Prod
 
 console.log("Target API URL:", APP_API_URL);
