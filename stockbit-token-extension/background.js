@@ -1,6 +1,6 @@
 console.log("Stockbit Token Syncer: Background script starting...");
 
-// Configuration - Ganti domain ini dengan domain aplikasi Anda
+// Configuration
 // const APP_API_URL = "http://saham07.netlify.app/api/update-token"; // Dev
 const APP_API_URL = "https://saham07.netlify.app/api/update-token"; // Prod
 
